@@ -103,6 +103,25 @@ body {
   background: rgba(255,255,255,0.03) !important;
 }
 
+/* Read-only source viewer: prioritize comfortable reading over editor density. */
+.code-viewer .cm-editor {
+  font-size: 15px !important;
+  font-weight: 450;
+  line-height: 1.75 !important;
+  letter-spacing: 0.01em;
+}
+
+.code-viewer .cm-scroller {
+  padding: 0;
+}
+
+.code-viewer .cm-gutters {
+  background: #20252d !important;
+  border-right-color: #343b46 !important;
+  color: #8b95a5 !important;
+  padding: 22px 10px 40px 8px !important;
+}
+
 /* Markdown preview */
 .markdown-preview {
   max-width: 860px;

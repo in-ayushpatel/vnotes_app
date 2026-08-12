@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { EditorState, StateEffect } from '@codemirror/state'
 import { EditorView, lineNumbers } from '@codemirror/view'
-import { LanguageDescription, defaultHighlightStyle, syntaxHighlighting } from '@codemirror/language'
+import { LanguageDescription } from '@codemirror/language'
 import { languages } from '@codemirror/language-data'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { useEditorStore } from '@/store/editorStore'
@@ -20,17 +20,45 @@ export function CodeViewer() {
       doc: openNote.content,
       extensions: [
         lineNumbers(),
-        syntaxHighlighting(defaultHighlightStyle),
         oneDark,
         EditorState.readOnly.of(true),
         EditorView.editable.of(false),
         EditorView.theme({
-          '&': { background: 'transparent', height: '100%' },
-          '.cm-scroller': { background: 'transparent', overflow: 'auto' },
-          '.cm-content': { padding: '16px 24px 24px 8px', cursor: 'default' },
-          '.cm-line': { paddingLeft: '4px' },
+          '&': {
+            background: '#20252d',
+            color: '#d8dee9',
+            height: '100%',
+            fontSize: '15px',
+            fontWeight: '450',
+            lineHeight: '1.75',
+          },
+          '.cm-scroller': {
+            background: '#20252d',
+            overflow: 'auto',
+            fontFamily: 'var(--font-mono)',
+          },
+          '.cm-content': {
+            padding: '22px 32px 40px 12px',
+            caretColor: 'transparent',
+            cursor: 'text',
+          },
+          '.cm-line': { paddingLeft: '8px' },
+          '.cm-gutters': {
+            background: '#20252d',
+            borderRight: '1px solid #343b46',
+            color: '#8b95a5',
+            paddingLeft: '8px',
+            paddingRight: '10px',
+          },
+          '.cm-lineNumbers .cm-gutterElement': {
+            minWidth: '3ch',
+            padding: '0 4px 0 0',
+          },
+          '.cm-selectionBackground, .cm-content ::selection': {
+            background: '#3b526f !important',
+          },
           '.cm-cursor, .cm-dropCursor': { display: 'none' },
-        }),
+        }, { dark: true }),
       ],
     })
 
@@ -53,5 +81,5 @@ export function CodeViewer() {
     }
   }, [openNote])
 
-  return <div ref={containerRef} style={{ height: '100%', width: '100%', overflow: 'hidden' }} />
+  return <div ref={containerRef} className="code-viewer" style={{ height: '100%', width: '100%', overflow: 'hidden' }} />
 }
