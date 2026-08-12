@@ -2,6 +2,7 @@
 
 import { create } from 'zustand'
 import { Note, SaveStatus } from '@/types'
+import { isMarkdownPath } from '@/lib/fileTypes'
 
 interface EditorState {
   openNote: Note | null
@@ -24,7 +25,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   openFile: async (path: string) => {
     // Save current note if dirty
     const { openNote, isDirty, saveNote } = get()
-    if (openNote && isDirty) {
+    if (openNote && isDirty && isMarkdownPath(openNote.path)) {
       await saveNote()
     }
 
@@ -62,7 +63,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
 
   setContent: (content: string) => {
     const { openNote } = get()
-    if (!openNote) return
+    if (!openNote || !isMarkdownPath(openNote.path)) return
     set({
       openNote: { ...openNote, content },
       isDirty: true,
@@ -72,6 +73,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   saveNote: async () => {
     const { openNote } = get()
     if (!openNote) return
+
+    if (!isMarkdownPath(openNote.path)) {
+      set({
+        isDirty: false,
+        saveStatus: { status: 'error', message: 'Read-only files cannot be saved' },
+      })
+      return
+    }
 
     set({ saveStatus: { status: 'saving' } })
 

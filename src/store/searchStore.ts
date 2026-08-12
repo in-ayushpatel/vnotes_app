@@ -3,6 +3,7 @@
 import { create } from 'zustand'
 import Fuse from 'fuse.js'
 import { FileNode } from '@/types'
+import { getDisplayFileName } from '@/lib/fileTypes'
 
 interface SearchResult {
   path: string
@@ -47,7 +48,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     const { indexedNotes } = get()
     const items = Array.from(indexedNotes.entries()).map(([path, content]) => ({
       path,
-      name: path.split('/').pop()?.replace('.md', '') ?? path,
+      name: getDisplayFileName(path.split('/').pop() ?? path),
       content,
     }))
 
@@ -76,7 +77,7 @@ export const useSearchStore = create<SearchState>((set, get) => ({
     const files = flattenTree(tree)
     const map = get().indexedNotes
     for (const f of files) {
-      if (!map.has(f.path)) map.set(f.path, f.name.replace('.md', ''))
+      if (!map.has(f.path)) map.set(f.path, getDisplayFileName(f.name))
     }
     set({ indexedNotes: new Map(map) })
   },

@@ -5,6 +5,7 @@ import { FileNode } from '@/types'
 import { useEditorStore } from '@/store/editorStore'
 import { useTreeStore } from '@/store/treeStore'
 import { useSearchStore } from '@/store/searchStore'
+import { getDisplayFileName, isMarkdownPath } from '@/lib/fileTypes'
 
 export function FileTree({ nodes }: { nodes: FileNode[] }) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
@@ -53,7 +54,7 @@ export function FileTree({ nodes }: { nodes: FileNode[] }) {
 
   const startRename = (e: React.MouseEvent, node: FileNode) => {
     e.stopPropagation()
-    const displayName = node.type === 'file' ? node.name.replace(/\.md$/, '') : node.name
+    const displayName = node.type === 'file' ? getDisplayFileName(node.name) : node.name
     setRenamingPath(node.path)
     setRenameName(displayName)
   }
@@ -171,6 +172,7 @@ export function FileTree({ nodes }: { nodes: FileNode[] }) {
     const isHovered = hoveredPath === node.path
     const isDeletingThis = deleting === node.path
     const isFolder = node.type === 'folder'
+    const canModify = isFolder || isMarkdownPath(node.path)
 
     return (
       <div key={node.path}>
@@ -195,8 +197,9 @@ export function FileTree({ nodes }: { nodes: FileNode[] }) {
             userSelect: 'none',
             position: 'relative',
           }}
-          draggable
+          draggable={canModify}
           onDragStart={(e) => {
+            if (!canModify) return
             e.dataTransfer.setData('app/node', JSON.stringify({ path: node.path, type: node.type, sha: node.sha }))
             e.dataTransfer.effectAllowed = 'move'
           }}
@@ -311,7 +314,7 @@ export function FileTree({ nodes }: { nodes: FileNode[] }) {
               flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               fontWeight: isOpen ? '500' : '400',
             }}>
-              {isFolder ? node.name : node.name.replace(/\.md$/, '')}
+              {isFolder ? node.name : getDisplayFileName(node.name)}
             </span>
           )}
 
@@ -347,27 +350,31 @@ export function FileTree({ nodes }: { nodes: FileNode[] }) {
                 </button>
               )}
 
-              {/* Rename */}
-              <button
-                title="Rename"
-                onClick={e => startRename(e, node)}
-                style={btnStyle('#6e7681')}
-                onMouseEnter={e => hoverIn(e, '#388bfd')}
-                onMouseLeave={e => hoverOut(e, '#6e7681')}
-              >
-                <span style={{ fontSize: '11px', lineHeight: 1 }}>✏️</span>
-              </button>
+              {canModify && (
+                <>
+                  {/* Rename */}
+                  <button
+                    title="Rename"
+                    onClick={e => startRename(e, node)}
+                    style={btnStyle('#6e7681')}
+                    onMouseEnter={e => hoverIn(e, '#388bfd')}
+                    onMouseLeave={e => hoverOut(e, '#6e7681')}
+                  >
+                    <span style={{ fontSize: '11px', lineHeight: 1 }}>✏️</span>
+                  </button>
 
-              {/* Delete */}
-              <button
-                title="Delete"
-                onClick={e => openDeleteModal(e, node)}
-                style={btnStyle('#6e7681')}
-                onMouseEnter={e => hoverIn(e, '#f85149', true)}
-                onMouseLeave={e => hoverOut(e, '#6e7681')}
-              >
-                <span style={{ fontSize: '11px', lineHeight: 1 }}>🗑</span>
-              </button>
+                  {/* Delete */}
+                  <button
+                    title="Delete"
+                    onClick={e => openDeleteModal(e, node)}
+                    style={btnStyle('#6e7681')}
+                    onMouseEnter={e => hoverIn(e, '#f85149', true)}
+                    onMouseLeave={e => hoverOut(e, '#6e7681')}
+                  >
+                    <span style={{ fontSize: '11px', lineHeight: 1 }}>🗑</span>
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -445,7 +452,7 @@ export function FileTree({ nodes }: { nodes: FileNode[] }) {
               Delete {nodeToDelete.type === 'folder' ? 'Folder' : 'Note'}
             </div>
             <div style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-              Are you sure you want to delete <strong style={{ color: 'var(--text-primary)' }}>{nodeToDelete.name.replace(/\.md$/, '')}</strong>?
+              Are you sure you want to delete <strong style={{ color: 'var(--text-primary)' }}>{getDisplayFileName(nodeToDelete.name)}</strong>?
               <br/><br/>
               This action operates directly on GitHub and cannot be undone.
             </div>

@@ -12,6 +12,8 @@ import { Preview } from '@/components/editor/Preview'
 import { TopBar } from '@/components/editor/TopBar'
 import { TocPanel } from '@/components/editor/TocPanel'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { CodeViewer } from '@/components/editor/CodeViewer'
+import { isMarkdownPath } from '@/lib/fileTypes'
 
 type ViewMode = 'edit' | 'rich' | 'split' | 'preview'
 
@@ -323,6 +325,8 @@ export default function AppPage() {
             >
               {!openNote ? (
                 <EmptyState />
+              ) : !isMarkdownPath(openNote.path) ? (
+                <CodeViewer />
               ) : viewMode === 'split' ? (
                 <>
                   {/* Editor pane */}
@@ -366,7 +370,7 @@ export default function AppPage() {
                 <Editor />
               )}
             </div>
-            {(viewMode === 'preview' || viewMode === 'split') && <TocPanel />}
+            {openNote && isMarkdownPath(openNote.path) && (viewMode === 'preview' || viewMode === 'split') && <TocPanel />}
           </div>
         </div>
       </div>

@@ -32,7 +32,7 @@ export function SearchBox({ onResultClick }: SearchBoxProps) {
           ref={inputRef}
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="Search notes... (⌘K)"
+          placeholder="Search files... (⌘K)"
           style={{
             width: '100%',
             background: 'var(--bg-tertiary)',

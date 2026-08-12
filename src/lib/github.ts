@@ -1,5 +1,6 @@
 import { FileNode, GitHubUser, GitHubRepo } from '@/types'
 import { cookies } from 'next/headers'
+import { isSupportedTextPath } from '@/lib/fileTypes'
 
 const GITHUB_API = 'https://api.github.com'
 
@@ -74,9 +75,9 @@ export async function getRepoTree(
 
   const treeData = await treeRes.json()
 
-  // Filter to only notes/ directory and exclude hidden .images folder, build nested structure
+  // Show editable Markdown and supported read-only text/code files under notes/.
   const items = (treeData.tree as Array<{ path: string; type: string; sha: string }>)
-    .filter((item) => item.path.startsWith('notes/') && !item.path.startsWith('notes/.images') && (item.type === 'blob' ? item.path.endsWith('.md') : true))
+    .filter((item) => item.path.startsWith('notes/') && !item.path.startsWith('notes/.images') && (item.type === 'blob' ? isSupportedTextPath(item.path) : true))
 
   return buildTree(items)
 }

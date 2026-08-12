@@ -1,6 +1,7 @@
 import { useEditorStore } from '@/store/editorStore'
 import { useTreeStore } from '@/store/treeStore'
 import { useUIStore } from '@/store/uiStore'
+import { getFileLanguage, isMarkdownPath } from '@/lib/fileTypes'
 
 type ViewMode = 'edit' | 'rich' | 'split' | 'preview'
 
@@ -24,9 +25,11 @@ export function TopBar({ viewMode, editorPreference, onSetMode, sidebarCollapsed
   const { openNote, saveStatus, saveNote, isDirty } = useEditorStore()
   const { selectedRepo } = useTreeStore()
   const { toggleCommandPalette } = useUIStore()
+  const isMarkdown = openNote ? isMarkdownPath(openNote.path) : false
+  const fileLanguage = openNote ? getFileLanguage(openNote.path) : null
 
   const breadcrumb = openNote?.path
-    ? openNote.path.replace(/^notes\//, '').replace('.md', '').split('/').join(' / ')
+    ? openNote.path.replace(/^notes\//, '').replace(/\.md$/i, '').split('/').join(' / ')
     : null
 
   const statusLabel = (() => {
@@ -110,8 +113,17 @@ export function TopBar({ viewMode, editorPreference, onSetMode, sidebarCollapsed
           </svg>
         </button>
 
+        {!isMarkdown && openNote && (
+          <div style={{
+            border: '1px solid var(--border)', borderRadius: '999px', padding: '3px 8px',
+            color: 'var(--text-secondary)', background: 'var(--bg-tertiary)', fontSize: '11px',
+          }}>
+            {fileLanguage?.label ?? 'Text'} · Read only
+          </div>
+        )}
+
         {/* Save status */}
-        {statusLabel && (
+        {isMarkdown && statusLabel && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: statusLabel.color }}>
             {statusLabel.dot && (
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: statusLabel.color, animation: 'pulse-dot 1s infinite' }} />
@@ -120,7 +132,7 @@ export function TopBar({ viewMode, editorPreference, onSetMode, sidebarCollapsed
           </div>
         )}
 
-        {openNote && (
+        {openNote && isMarkdown && (
           <>
             {/* Save Button */}
             <button

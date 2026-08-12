@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAccessToken, getSelectedRepo, getFileContent, updateFile, deleteFile } from '@/lib/github'
+import { isMarkdownPath, isSupportedTextPath } from '@/lib/fileTypes'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,6 +15,9 @@ export async function GET(request: NextRequest) {
 
     const path = request.nextUrl.searchParams.get('path')
     if (!path) return NextResponse.json({ error: 'path is required' }, { status: 400 })
+    if (!isSupportedTextPath(path)) {
+      return NextResponse.json({ error: 'Unsupported file type' }, { status: 415 })
+    }
 
     const result = await getFileContent(token, repoInfo.owner, repoInfo.repo, path)
     return NextResponse.json(result)
@@ -37,6 +41,9 @@ export async function PUT(request: NextRequest) {
 
     if (!path || content === undefined) {
       return NextResponse.json({ error: 'path and content are required' }, { status: 400 })
+    }
+    if (!isMarkdownPath(path)) {
+      return NextResponse.json({ error: 'Only Markdown files can be saved' }, { status: 403 })
     }
 
     const result = await updateFile(
@@ -71,6 +78,9 @@ export async function DELETE(request: NextRequest) {
 
     if (!path || !sha) {
       return NextResponse.json({ error: 'path and sha are required' }, { status: 400 })
+    }
+    if (!isMarkdownPath(path)) {
+      return NextResponse.json({ error: 'Read-only files cannot be deleted' }, { status: 403 })
     }
 
     await deleteFile(token, repoInfo.owner, repoInfo.repo, path, message ?? 'delete note', sha)
