@@ -7,6 +7,11 @@ import { useTreeStore } from '@/store/treeStore'
 import { useSearchStore } from '@/store/searchStore'
 import { getDisplayFileName, isMarkdownPath } from '@/lib/fileTypes'
 
+function containsReadOnlyFile(node: FileNode): boolean {
+  if (node.type === 'file') return !isMarkdownPath(node.path)
+  return node.children?.some(containsReadOnlyFile) ?? false
+}
+
 export function FileTree({ nodes }: { nodes: FileNode[] }) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [hoveredPath, setHoveredPath] = useState<string | null>(null)
@@ -172,7 +177,7 @@ export function FileTree({ nodes }: { nodes: FileNode[] }) {
     const isHovered = hoveredPath === node.path
     const isDeletingThis = deleting === node.path
     const isFolder = node.type === 'folder'
-    const canModify = isFolder || isMarkdownPath(node.path)
+    const canModify = isFolder ? !containsReadOnlyFile(node) : isMarkdownPath(node.path)
 
     return (
       <div key={node.path}>
@@ -489,7 +494,7 @@ export function FileTree({ nodes }: { nodes: FileNode[] }) {
           color: 'var(--text-muted)', fontSize: '12px', lineHeight: '1.7',
         }}>
           <div style={{ fontSize: '28px', marginBottom: '8px' }}>📭</div>
-          No notes yet.<br />
+          No supported files yet.<br />
           Use the <strong style={{ color: 'var(--text-secondary)' }}>+</strong> button above<br />
           to create your first note.
         </div>

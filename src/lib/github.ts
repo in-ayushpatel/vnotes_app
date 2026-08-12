@@ -75,9 +75,27 @@ export async function getRepoTree(
 
   const treeData = await treeRes.json()
 
-  // Show editable Markdown and supported read-only text/code files under notes/.
-  const items = (treeData.tree as Array<{ path: string; type: string; sha: string }>)
-    .filter((item) => item.path.startsWith('notes/') && !item.path.startsWith('notes/.images') && (item.type === 'blob' ? isSupportedTextPath(item.path) : true))
+  const repoItems = treeData.tree as Array<{ path: string; type: string; sha: string }>
+  const includedPaths = new Set<string>()
+
+  const includeWithAncestors = (path: string) => {
+    const parts = path.split('/')
+    for (let i = 1; i <= parts.length; i++) {
+      includedPaths.add(parts.slice(0, i).join('/'))
+    }
+  }
+
+  for (const item of repoItems) {
+    const isHiddenImagePath = item.path === 'notes/.images' || item.path.startsWith('notes/.images/')
+    const isSupportedFile = item.type === 'blob' && isSupportedTextPath(item.path)
+    const isNoteFolder = item.type === 'tree' && (item.path === 'notes' || item.path.startsWith('notes/'))
+
+    if (!isHiddenImagePath && (isSupportedFile || isNoteFolder)) {
+      includeWithAncestors(item.path)
+    }
+  }
+
+  const items = repoItems.filter((item) => includedPaths.has(item.path))
 
   return buildTree(items)
 }
@@ -94,11 +112,7 @@ function buildTree(items: Array<{ path: string; type: string; sha: string }>): F
 
   for (const item of sorted) {
     const parts = item.path.split('/')
-    // Remove 'notes' prefix
-    const relativeParts = parts.slice(1)
-    if (relativeParts.length === 0) continue
-
-    const name = relativeParts[relativeParts.length - 1]
+    const name = parts[parts.length - 1]
     const node: FileNode = {
       name,
       path: item.path,
@@ -107,7 +121,7 @@ function buildTree(items: Array<{ path: string; type: string; sha: string }>): F
       children: item.type === 'tree' ? [] : undefined,
     }
 
-    if (relativeParts.length === 1) {
+    if (parts.length === 1) {
       root.push(node)
       nodeMap.set(item.path, node)
     } else {

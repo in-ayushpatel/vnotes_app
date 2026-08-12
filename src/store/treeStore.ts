@@ -141,7 +141,7 @@ export const useTreeStore = create<TreeState>((set, get) => ({
       const pathParts = newPath.split('/')
       const parentPath = pathParts.slice(0, pathParts.length - 1).join('/')
 
-      if (parentPath === 'notes') {
+      if (!parentPath) {
         newTree.push(nodeToMove)
       } else {
         const addToTree = (nodes: FileNode[]) => {
