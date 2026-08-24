@@ -1,40 +1,141 @@
 # vNotes
 
-vNotes is a GitHub-synced notes workspace for developers. Version 1.0.0 supports Markdown and rich-text editing, repository navigation, search, Mermaid diagrams, image uploads, and read-only code viewing.
+vNotes is a developer-first notes workspace backed by your own GitHub repository. Write in Markdown or rich text, browse related source code, and keep every saved change in Git history without a proprietary notes database.
 
-See the [changelog](./CHANGELOG.md) for release details.
+Current release: **v1.0.0** · [Release notes](./CHANGELOG.md)
 
-## Getting Started
+## Features
 
-First, run the development server:
+- GitHub OAuth with access to public and private repositories
+- Markdown editing with CodeMirror, syntax highlighting, and GFM support
+- Rich-text editing with Markdown serialization
+- Edit, preview, and resizable split-view modes
+- Automatic saves to GitHub after three seconds of inactivity
+- File and folder creation, deletion, drag-and-drop moves, and inline rename
+- Command palette and fuzzy file search with `⌘/Ctrl + P`
+- Mermaid diagram rendering in Markdown previews
+- Drag-and-drop and clipboard image uploads
+- Automatic table of contents for Markdown headings
+- Read-only syntax-highlighted source-code viewing
+- Responsive desktop and mobile layouts
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## How it works
+
+vNotes is a stateless Next.js application that uses GitHub as its storage layer:
+
+```text
+Browser → Next.js route handlers → GitHub REST API → Your repository
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+New notes and folders are created under `notes/`. Uploaded images are stored under `notes/.images/`. Supported text and source files elsewhere in the selected repository are visible in read-only mode.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Each Markdown save writes directly to the selected repository through the GitHub Contents API, so the repository remains the source of truth.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Supported files
 
-## Learn More
+Markdown files (`.md`) are editable. The following formats are currently available in read-only code view:
 
-To learn more about Next.js, take a look at the following resources:
+`Java`, `Kotlin`, `JavaScript`, `JSX`, `TypeScript`, `TSX`, `Python`, `C`, `C++`, `Go`, `Rust`, `SQL`, `Shell`, `JSON`, `YAML`, `XML`, `Properties`, and `TOML`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Requirements
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Node.js 20.9 or newer
+- npm
+- A GitHub account
+- A GitHub OAuth App
 
-## Deploy on Vercel
+## Local setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Clone the repository and install dependencies:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   git clone https://github.com/in-ayushpatel/vnotes_app.git
+   cd vnotes_app
+   npm install
+   ```
+
+2. Create a GitHub OAuth App from **GitHub Settings → Developer settings → OAuth Apps**. For local development, configure:
+
+   ```text
+   Homepage URL:               http://localhost:3000
+   Authorization callback URL: http://localhost:3000/api/auth/callback
+   ```
+
+3. Create `.env.local` in the project root:
+
+   ```dotenv
+   GITHUB_CLIENT_ID=your_oauth_client_id
+   GITHUB_CLIENT_SECRET=your_oauth_client_secret
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   ```
+
+4. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000), sign in with GitHub, and select a repository.
+
+The OAuth flow requests the `repo` scope so vNotes can read and update both public and private repositories selected by the user. Never commit `.env.local` or expose the client secret to browser code.
+
+## Available scripts
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the local development server |
+| `npm run build` | Create and type-check the production build |
+| `npm run start` | Run the production build |
+| `npm run lint` | Run ESLint |
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+| --- | --- |
+| `⌘/Ctrl + P` | Open the file command palette |
+| `⌘/Ctrl + S` | Save the current Markdown note immediately |
+| `Escape` | Close the command palette |
+
+## Project structure
+
+```text
+src/
+├── app/
+│   ├── api/          # GitHub OAuth and repository operations
+│   ├── app/          # Authenticated notes workspace
+│   └── page.tsx      # Landing and sign-in page
+├── components/
+│   ├── editor/       # Markdown, rich-text, preview, and code views
+│   ├── sidebar/      # Repository tree and search
+│   └── ui/           # Command palette and shared UI
+├── lib/              # GitHub API client and file-type helpers
+├── store/            # Zustand application state
+└── types/            # Shared TypeScript types
+```
+
+## Production deployment
+
+Build and validate the application before deployment:
+
+```bash
+npm run lint
+npm run build
+```
+
+Deploy to a Next.js-compatible Node.js host and add the same three environment variables in the hosting provider. Set `NEXT_PUBLIC_APP_URL` to the public HTTPS origin, then update the GitHub OAuth App:
+
+```text
+Homepage URL:               https://your-domain.example
+Authorization callback URL: https://your-domain.example/api/auth/callback
+```
+
+## Data and security
+
+- GitHub access tokens are stored in an HTTP-only, same-site cookie.
+- Authentication cookies are marked secure in production.
+- Repository content is fetched and changed server-side through GitHub's API.
+- vNotes does not use a separate database for note content.
+
+## Release history
+
+See [CHANGELOG.md](./CHANGELOG.md). The current source release is tagged [`v1.0.0`](https://github.com/in-ayushpatel/vnotes_app/tree/v1.0.0).
