@@ -165,7 +165,7 @@ export function TopBar({ viewMode, editorPreference, onSetMode, sidebarCollapsed
               display: 'flex', background: 'var(--bg-tertiary)', padding: '2px', borderRadius: '8px',
               border: '1px solid var(--border)', flexShrink: 0,
             }}>
-              {MODES.filter(m => !isMobile || m.mode !== 'split').map(({ mode, icon, title, color }, i) => {
+              {MODES.filter(m => !isMobile || m.mode !== 'split').map(({ mode, icon, title, color }) => {
                 const active = viewMode === mode || (viewMode === 'split' && (mode === 'edit' || mode === 'rich') && editorPreference === mode)
                 return (
                   <button

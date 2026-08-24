@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { GitHubRepo } from '@/types'
 import { useTreeStore } from '@/store/treeStore'
 import { useAuthStore } from '@/store/authStore'
 import { useEditorStore } from '@/store/editorStore'

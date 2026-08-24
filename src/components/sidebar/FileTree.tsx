@@ -38,15 +38,6 @@ export function FileTree({ nodes }: { nodes: FileNode[] }) {
     if (renamingPath) setTimeout(() => renameInputRef.current?.focus(), 30)
   }, [renamingPath])
 
-  const toggle = (path: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    setExpanded(prev => {
-      const next = new Set(prev)
-      next.has(path) ? next.delete(path) : next.add(path)
-      return next
-    })
-  }
-
   const startCreate = (e: React.MouseEvent, parentPath: string, type: 'file' | 'folder') => {
     e.stopPropagation()
     setCreating({ parentPath, type })
@@ -262,7 +253,11 @@ export function FileTree({ nodes }: { nodes: FileNode[] }) {
             if (isFolder) {
               setExpanded(prev => {
                 const next = new Set(prev)
-                next.has(node.path) ? next.delete(node.path) : next.add(node.path)
+                if (next.has(node.path)) {
+                  next.delete(node.path)
+                } else {
+                  next.add(node.path)
+                }
                 return next
               })
             } else {

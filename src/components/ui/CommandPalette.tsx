@@ -8,7 +8,7 @@ import { useUIStore } from '@/store/uiStore'
 import type { FileNode } from '@/types'
 
 // Recursively flatten tree into a 1D array of only files
-function flattenTree(nodes: FileNode[], pathPrefix = ''): { path: string, name: string }[] {
+function flattenTree(nodes: FileNode[]): { path: string, name: string }[] {
   let result: { path: string, name: string }[] = []
   for (const node of nodes) {
     if (node.type === 'file') {
@@ -17,7 +17,7 @@ function flattenTree(nodes: FileNode[], pathPrefix = ''): { path: string, name: 
         result.push({ path: node.path, name: node.name })
       }
     } else if (node.children) {
-      result = result.concat(flattenTree(node.children, node.path))
+      result = result.concat(flattenTree(node.children))
     }
   }
   return result

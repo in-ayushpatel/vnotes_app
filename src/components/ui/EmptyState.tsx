@@ -1,7 +1,3 @@
-'use client'
-
-import { useEditorStore } from '@/store/editorStore'
-
 export function EmptyState() {
   return (
     <div style={{

@@ -53,6 +53,9 @@ export function Preview() {
                 finalSrc = `/api/image?path=${match[1]}`
               }
             }
+            // Markdown images can have arbitrary dimensions, and local images use an
+            // authenticated endpoint that the Next.js image optimizer cannot access.
+            // eslint-disable-next-line @next/next/no-img-element
             return <img src={finalSrc as string} alt={alt} {...props} style={{ maxWidth: '100%', borderRadius: '6px', margin: '16px 0' }} />
           },
           code({ node, inline, className, children }: MarkdownCodeProps) {

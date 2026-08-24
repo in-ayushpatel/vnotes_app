@@ -9,7 +9,7 @@ interface SearchBoxProps {
 }
 
 export function SearchBox({ onResultClick }: SearchBoxProps) {
-  const { query, results, setQuery, clearSearch, isOpen } = useSearchStore()
+  const { query, results, setQuery, clearSearch } = useSearchStore()
   const { openFile } = useEditorStore()
   const inputRef = useRef<HTMLInputElement>(null)
 

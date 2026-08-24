@@ -56,7 +56,7 @@ export function Editor() {
         if (index !== -1) {
           view.dispatch({ changes: { from: index, to: index + placeholder.length, insert: `![${file.name}](${url})` } })
         }
-      } catch (err) {
+      } catch {
         const currentDoc = view.state.doc.toString()
         const index = currentDoc.indexOf(placeholder)
         if (index !== -1) {
