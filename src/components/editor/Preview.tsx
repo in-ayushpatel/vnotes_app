@@ -7,6 +7,11 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { useEditorStore } from '@/store/editorStore'
 import { MermaidRenderer } from '@/components/editor/MermaidRenderer'
 
+type MarkdownCodeProps = React.ComponentProps<'code'> & {
+  inline?: boolean
+  node?: unknown
+}
+
 export function Preview() {
   const { openNote } = useEditorStore()
 
@@ -50,7 +55,8 @@ export function Preview() {
             }
             return <img src={finalSrc as string} alt={alt} {...props} style={{ maxWidth: '100%', borderRadius: '6px', margin: '16px 0' }} />
           },
-          code({ node, inline, className, children, ...props }: any) {
+          code({ node, inline, className, children }: MarkdownCodeProps) {
+            void node
             const match = /language-(\w+)/.exec(className || '')
             
             // Intercept mermaid blocks
@@ -60,7 +66,6 @@ export function Preview() {
             
             return !inline && match ? (
               <SyntaxHighlighter
-                {...props}
                 style={vscDarkPlus}
                 language={match[1]}
                 PreTag="div"
@@ -68,7 +73,7 @@ export function Preview() {
                 {String(children).replace(/\n$/, '')}
               </SyntaxHighlighter>
             ) : (
-              <code className={className} {...props}>
+              <code className={className}>
                 {children}
               </code>
             )

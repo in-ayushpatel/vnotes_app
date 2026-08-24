@@ -8,12 +8,14 @@ export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
-    if (typeof window !== 'undefined') {
+    const frame = window.requestAnimationFrame(() => {
+      setMounted(true)
       const params = new URLSearchParams(window.location.search)
       const err = params.get('error')
       if (err) setError(err === 'auth_failed' ? 'Authentication failed. Please try again.' : 'Login error. Please try again.')
-    }
+    })
+
+    return () => window.cancelAnimationFrame(frame)
   }, [])
 
   return (

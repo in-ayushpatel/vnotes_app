@@ -1,5 +1,13 @@
 import { Editor } from '@tiptap/react'
 
+function Icon({ path, size = 18 }: { path: string; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d={path} />
+    </svg>
+  )
+}
+
 export function Toolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null
 
@@ -14,12 +22,6 @@ export function Toolbar({ editor }: { editor: Editor | null }) {
     transition: 'all 0.15s ease',
     flexShrink: 0
   })
-
-  const Icon = ({ path, size = 18 }: { path: string; size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d={path} />
-    </svg>
-  )
 
   const colors = {
     style: '#79c0ff',

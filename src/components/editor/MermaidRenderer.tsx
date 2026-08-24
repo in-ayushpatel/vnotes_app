@@ -33,10 +33,11 @@ export function MermaidRenderer({ chart }: { chart: string }) {
           setSvg(svgCode)
           setError(null)
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (isMounted) {
           // Mermaid sometimes throws a string or weird object
-          setError(err?.message || err?.str || 'Syntax error in mermaid diagram')
+          const mermaidError = err as { message?: string; str?: string }
+          setError(mermaidError.message || mermaidError.str || 'Syntax error in mermaid diagram')
         }
       }
     }

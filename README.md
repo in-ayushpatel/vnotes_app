@@ -1,4 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# vNotes
+
+vNotes is a GitHub-synced notes workspace for developers. Version 1.0.0 supports Markdown and rich-text editing, repository navigation, search, Mermaid diagrams, image uploads, and read-only code viewing.
+
+See the [changelog](./CHANGELOG.md) for release details.
 
 ## Getting Started
 

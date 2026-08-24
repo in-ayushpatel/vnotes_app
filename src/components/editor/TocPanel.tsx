@@ -5,6 +5,7 @@ import { useEditorStore } from '@/store/editorStore'
 
 export function TocPanel() {
   const { openNote } = useEditorStore()
+  const content = openNote?.content ?? ''
   const [isOpen, setIsOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -18,8 +19,8 @@ export function TocPanel() {
 
   // Parse headings from markdown content
   const headings = useMemo(() => {
-    if (!openNote?.content) return []
-    const lines = openNote.content.split('\n')
+    if (!content) return []
+    const lines = content.split('\n')
     const parsed = []
     
     // basic regex to match # Heading
@@ -34,7 +35,7 @@ export function TocPanel() {
       }
     }
     return parsed
-  }, [openNote?.content])
+  }, [content])
 
   const scrollToHeading = (id: string) => {
     const el = document.getElementById(id)

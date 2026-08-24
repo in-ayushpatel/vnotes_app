@@ -63,21 +63,19 @@ export function CommandPalette() {
     
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen])
+  }, [isOpen, setIsOpen])
 
   // Focus input when opened
   useEffect(() => {
     if (isOpen) {
-      setQuery('')
-      setSelectedIndex(0)
-      setTimeout(() => inputRef.current?.focus(), 10)
+      const timeout = window.setTimeout(() => {
+        setQuery('')
+        setSelectedIndex(0)
+        inputRef.current?.focus()
+      }, 10)
+      return () => window.clearTimeout(timeout)
     }
   }, [isOpen])
-
-  // Reset index when results change
-  useEffect(() => {
-    setSelectedIndex(0)
-  }, [results])
 
   const selectItem = (path: string) => {
     openFile(path)
@@ -120,7 +118,10 @@ export function CommandPalette() {
           <input
             ref={inputRef}
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => {
+              setQuery(e.target.value)
+              setSelectedIndex(0)
+            }}
             onKeyDown={handleInputKeyDown}
             placeholder="Search files by name... (⌘P)"
             style={{
@@ -162,7 +163,7 @@ export function CommandPalette() {
             })
           ) : (
             <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
-              No files found matching "{query}"
+              No files found matching &quot;{query}&quot;
             </div>
           )}
         </div>

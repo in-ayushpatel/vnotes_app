@@ -1,12 +1,17 @@
 'use client'
 
 import { useEffect, useRef, useCallback } from 'react'
-import { useEditor, EditorContent } from '@tiptap/react'
+import { useEditor, EditorContent, type Editor as TiptapEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
-import { Markdown } from 'tiptap-markdown'
+import { Markdown, type MarkdownStorage } from 'tiptap-markdown'
+import type { EditorView } from '@tiptap/pm/view'
 import { useEditorStore } from '@/store/editorStore'
 import { Toolbar } from './Toolbar'
+
+function getMarkdown(editor: TiptapEditor) {
+  return (editor.storage as unknown as { markdown: MarkdownStorage }).markdown.getMarkdown()
+}
 
 export function RichTextEditor() {
   const { openNote, setContent, saveNote } = useEditorStore()
@@ -29,7 +34,7 @@ export function RichTextEditor() {
     )
   }, [])
 
-  const handleImageUpload = async (file: File, view: any, pos: number) => {
+  const handleImageUpload = async (file: File, view: EditorView, pos: number) => {
     if (!file.type.startsWith('image/')) return false
     
     // Create a temporary placeholder (optional, but good for UX)
@@ -73,7 +78,7 @@ export function RichTextEditor() {
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
       // Serialize rich text into raw markdown
-      let markdownOutput = (editor.storage as any).markdown.getMarkdown()
+      let markdownOutput = getMarkdown(editor)
       
       // Post-process: strip internal API path back to relative path for GitHub
       markdownOutput = markdownOutput.replace(/\/api\/image\?path=/g, '')
@@ -129,14 +134,14 @@ export function RichTextEditor() {
   useEffect(() => {
     if (editor && openNote) {
       // Get current normalized markdown from editor
-      const currentMarkdown = (editor.storage as any).markdown.getMarkdown().replace(/\/api\/image\?path=/g, '')
+      const currentMarkdown = getMarkdown(editor).replace(/\/api\/image\?path=/g, '')
       
       if (openNote.content !== currentMarkdown) {
         // Sync rewritten content to the editor
         editor.commands.setContent(rewriteMarkdownToApiPaths(openNote.content))
       }
     }
-  }, [openNote?.path, openNote?.content, editor, rewriteMarkdownToApiPaths])
+  }, [openNote, editor, rewriteMarkdownToApiPaths])
 
   // Keyboard shortcut to manually save
   useEffect(() => {
